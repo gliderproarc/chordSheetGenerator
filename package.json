@@ -1,0 +1,23 @@
+{
+  "name": "chordsheetgenerator",
+  "version": "1.0.0",
+  "description": "Transposes chord sheets from one key to another",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gliderproarc/chordSheetGenerator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gliderproarc/chordSheetGenerator/issues"
+  },
+  "homepage": "https://github.com/gliderproarc/chordSheetGenerator#readme",
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
