@@ -1,5 +1,5 @@
 // Define a type for the accidental.
-type Accidental = '♭' | '♯' | '♮' ;
+type Accidental = '♭' | '♯' | '♮';
 
 // Define a type for the note.
 type Note = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
@@ -36,15 +36,14 @@ interface Pitch {
 
 // Define an interface for a Scale, which includes the name and the pitches.
 interface Scale {
-    name: string;
-    pitches: [number,Pitch][];
+    name: Pitch;
+    pitches: [number, Pitch][];
 }
 
 // Define an interface for a Key, which includes the name, the number of accidentals, the accidentals themselves, and the scale.
 interface Key {
-    name: string;
-    numberOfAccidentals: number;
-    accidentals: Accidental[];
+    name: Pitch;
+    accidentals: Pitch[];
     scale: Scale;
 }
 
@@ -98,18 +97,21 @@ const getAccidentals = (num: number): Array<Pitch> => {
 }
 
 
-const getScale = (numSharpFlats: number, root: Note): Array<Pitch> => {
-    const pitches = getNotes(root);
+const getScale = (numSharpFlats: number, root: Pitch): Scale => {
+    const pitches = getNotes(root.note);
     const accidentals = getAccidentals(numSharpFlats)
     const scalePitches = pitches.map(originalPitch => {
         const newPitch = accidentals.find(newPitch => newPitch.note === originalPitch.note);
         return newPitch ? newPitch : originalPitch;
     });
-    return scalePitches;
-
+    const enumeratedPitches = scalePitches.map((pitch, index) => {
+        return [index, pitch] as [number, Pitch];
+    })
+    return {
+        name: root,
+        pitches: enumeratedPitches
+    }
 }
 
-console.log(getScale(-4,"A"))
-
-
-
+console.dir(getScale(-4, { note: "A", accidental: '♭' }), { depth: null })
+// console.log(getScale(-4,"A"))
