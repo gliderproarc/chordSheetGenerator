@@ -4,6 +4,9 @@ type Accidental = '♭' | '♯' | '♮';
 // Define a type for the note.
 type Note = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
 
+// Define a type for modes.
+type Mode = 'Ionian' | 'Dorian' | 'Phrygian' | 'Lydian' | 'Mixolidian' | 'Aolean' | 'Locrian';
+
 // Define the notes.
 const notes: Array<Note> = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
@@ -43,8 +46,9 @@ interface Scale {
 // Define an interface for a Key, which includes the name, the number of accidentals, the accidentals themselves, and the scale.
 interface Key {
     name: Pitch;
-    accidentals: Pitch[];
+    accidentals: Array<Pitch>;
     scale: Scale;
+    mode: Mode;
 }
 
 // Function to generate an infinite sequence of notes.
@@ -53,6 +57,22 @@ function* generateNotes() {
     while (true) {
         yield notes[index];
         index = (index + 1) % notes.length;
+    }
+}
+
+const rotateScale = (scale: Scale, rotations: number): Scale => {
+    const pitches = [...scale.pitches];  // copy the array to avoid modifying the original
+    for (let i = 0; i < rotations; i++) {
+        if (pitches.length > 0) {
+            let first = pitches.shift();
+            if (first !== undefined) {
+                pitches.push(first);
+            }
+        }
+    }
+    return {
+        name: pitches[0][1],
+        pitches: pitches
     }
 }
 
@@ -97,7 +117,7 @@ const getAccidentals = (num: number): Array<Pitch> => {
 }
 
 
-const getScale = (numSharpFlats: number, root: Pitch): Scale => {
+const getKey = (numSharpFlats: number, root: Pitch, mode: Mode): Key => {
     const pitches = getNotes(root.note);
     const accidentals = getAccidentals(numSharpFlats)
     const scalePitches = pitches.map(originalPitch => {
@@ -107,11 +127,31 @@ const getScale = (numSharpFlats: number, root: Pitch): Scale => {
     const enumeratedPitches = scalePitches.map((pitch, index) => {
         return [index, pitch] as [number, Pitch];
     })
-    return {
+    return{
+        name: root,
+        accidentals: accidentals,
+        scale: {
         name: root,
         pitches: enumeratedPitches
+        },
+        mode: mode
     }
 }
 
-console.dir(getScale(-4, { note: "A", accidental: '♭' }), { depth: null })
-// console.log(getScale(-4,"A"))
+const shiftModeFromIonian = (key: Key, shiftBy: number): Key => {
+    const rotatedScale = rotateScale(key.scale, shiftBy);
+    const modes = ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolidian', 'Aolean', 'Locrian']
+
+    return {
+        name: rotatedScale.name,
+        accidentals: key.accidentals,
+        scale: rotatedScale,
+        mode: modes[shiftBy] as Mode
+    }
+}
+
+
+
+
+const ab = getKey(-4, { note: "A", accidental: '♭' }, 'Ionian')
+console.dir(shiftModeFromIonian(ab, 3),{ depth: null })
