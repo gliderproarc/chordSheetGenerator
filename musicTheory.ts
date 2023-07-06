@@ -127,12 +127,12 @@ const getKey = (numSharpFlats: number, root: Pitch, mode: Mode): Key => {
     const enumeratedPitches = scalePitches.map((pitch, index) => {
         return [index, pitch] as [number, Pitch];
     })
-    return{
+    return {
         name: root,
         accidentals: accidentals,
         scale: {
-        name: root,
-        pitches: enumeratedPitches
+            name: root,
+            pitches: enumeratedPitches
         },
         mode: mode
     }
@@ -140,7 +140,8 @@ const getKey = (numSharpFlats: number, root: Pitch, mode: Mode): Key => {
 
 const shiftModeFromIonian = (key: Key, shiftBy: number): Key => {
     const rotatedScale = rotateScale(key.scale, shiftBy);
-    const modes = ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolidian', 'Aolean', 'Locrian']
+    const modes = ['Ionian', 'Dorian', 'Phrygian', 'Lydian',
+                   'Mixolidian', 'Aolean', 'Locrian'];
 
     return {
         name: rotatedScale.name,
@@ -150,8 +151,42 @@ const shiftModeFromIonian = (key: Key, shiftBy: number): Key => {
     }
 }
 
+const getAllKeys = (): Array<Key> => {
+    const sharpFlats: Array<number> = Array.from({length: 15 }, (_, i) => i - 7);
+    const roots: Array<Pitch> = [
+        { note: 'C', accidental: '♭' },
+        { note: 'G', accidental: '♭' },
+        { note: 'D', accidental: '♭' },
+        { note: 'A', accidental: '♭' },
+        { note: 'E', accidental: '♭' },
+        { note: 'B', accidental: '♭' },
+        { note: 'F', accidental: null },
+        { note: 'C', accidental: null },
+        { note: 'G', accidental: null },
+        { note: 'D', accidental: null },
+        { note: 'A', accidental: null },
+        { note: 'E', accidental: null },
+        { note: 'B', accidental: null },
+        { note: 'F', accidental: '♯' },
+        { note: 'C', accidental: '♯' }
+    ];
+    let res = []
+    for (let i = 0; i <= 14; i++) {
+        res.push(getKey(sharpFlats[i], roots[i], 'Ionian'))
+    }
+    return res;
+}
+
+const getAllModes = (): Array<Key> => {
+    let res = getAllKeys();
+    for (let i = 1; i <= 6; i++) {
+        let keys = getAllKeys()
+        res = res.concat(keys.map((key) => {
+    return shiftModeFromIonian(key, i)
+        }))
+                }
+        return res;
+    }
 
 
-
-const ab = getKey(-4, { note: "A", accidental: '♭' }, 'Ionian')
-console.dir(shiftModeFromIonian(ab, 3),{ depth: null })
+console.dir(getAllModes(), { depth: null })
