@@ -5,12 +5,19 @@ type Accidental = '♭' | '♯' | '♮';
 type Note = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
 
 // Define a type for modes.
-type Mode = 'Ionian' | 'Dorian' | 'Phrygian' | 'Lydian' | 'Mixolidian' | 'Aolean' | 'Locrian';
+type Mode = 'Ionian' | 'Dorian' | 'Phrygian' | 'Lydian' |
+    'Mixolidian' | 'Aolean' | 'Locrian';
+
+// Define a type for roman numerals
+type RomanNumeral =
+    'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII' |
+    'i' | 'ii' | 'iii' | 'iv' | 'v' | 'vi' | 'vii';
+
 
 // Define the notes.
 const notes: Array<Note> = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-//name the sharps
+//name the sharps and flats
 const sharps: Array<Pitch> = [
     { note: 'F', accidental: '♯' },
     { note: 'C', accidental: '♯' },
@@ -50,6 +57,18 @@ interface Key {
     scale: Scale;
     mode: Mode;
 }
+
+// // Keys should know what chords they have, so lets store them here
+// interface ChordSet {
+//     chords: [number, RomanNumeral, Chord][];
+// }
+
+// // Chords only need their qualit and root, and the way we write them
+// interface Chord {
+//     commonName: string;
+//     rootPitch: Pitch;
+//     quality: string;
+// }
 
 // Function to generate an infinite sequence of notes.
 function* generateNotes() {
@@ -182,11 +201,13 @@ const getAllModes = (): Array<Key> => {
     for (let i = 1; i <= 6; i++) {
         let keys = getAllKeys()
         res = res.concat(keys.map((key) => {
-    return shiftModeFromIonian(key, i)
+            return shiftModeFromIonian(key, i)
         }))
-                }
-        return res;
     }
+    return res;
+}
+
+
 
 
 console.dir(getAllModes(), { depth: null })
