@@ -63,12 +63,75 @@ interface Key {
 //     chords: [number, RomanNumeral, Chord][];
 // }
 
-// // Chords only need their qualit and root, and the way we write them
-// interface Chord {
-//     commonName: string;
-//     rootPitch: Pitch;
-//     quality: string;
-// }
+// Chords only need their qualit and root, and the way we write them
+interface Chord {
+    commonName: string;
+    rootPitch: Pitch;
+    quality: string;
+}
+
+const absChords: Array<Chord> = [
+    {commonName: "C",
+    rootPitch: {
+    note: "C",
+    accidental: null},
+    quality: "M"},
+    {commonName: "Db",
+     rootPitch: {
+         note: "D",
+         accidental: '♭'},
+     quality: "M"},
+    {commonName: "D",
+     rootPitch: {
+         note: "D",
+         accidental: '♮'},
+     quality: "M"},
+    {commonName: "Eb",
+     rootPitch: {
+         note: "E",
+         accidental: '♭'},
+     quality: "M"},
+    {commonName: "E",
+     rootPitch: {
+         note: "E",
+         accidental: '♮'},
+     quality: "M"},
+    {commonName: "F",
+     rootPitch: {
+         note: "F",
+         accidental: '♮'},
+     quality: "M"},
+    {commonName: "F#",
+     rootPitch: {
+         note: "F",
+         accidental: '♯'},
+     quality: "M"},
+    {commonName: "G",
+     rootPitch: {
+         note: "G",
+         accidental: '♮'},
+     quality: "M"},
+    {commonName: "Ab",
+     rootPitch: {
+         note: "A",
+         accidental: '♭'},
+     quality: "M"},
+    {commonName: "A",
+     rootPitch: {
+         note: "A",
+         accidental: '♮'},
+     quality: "M"},
+    {commonName: "Bb",
+     rootPitch: {
+         note: "B",
+         accidental: '♭'},
+     quality: "M"},
+    {commonName: "B",
+     rootPitch: {
+         note: "B",
+         accidental: '♮'},
+     quality: "M"}
+];
 
 // Function to generate an infinite sequence of notes.
 function* generateNotes() {
