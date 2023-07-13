@@ -1,6 +1,5 @@
 // Define a type for the accidental.
-type Accidental = '♭' | '♯' | '♮';
-
+type Accidental = '𝄫' | '♭' | '♯' | '𝄪' | '♮';
 // Define a type for the note.
 type Note = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
 
@@ -37,6 +36,25 @@ const flats: Array<Pitch> = [
     { note: 'C', accidental: '♭' },
     { note: 'F', accidental: '♭' }
 ]
+
+// Pitch value map
+const noteValues: Record<Note, number> = {
+    'C': 0,
+    'D': 2,
+    'E': 4,
+    'F': 5,
+    'G': 7,
+    'A': 9,
+    'B': 11
+};
+
+const accidentalValues: Record<Accidental, number> = {
+    '𝄫': -2,
+    '♭': -1,
+    '♯': 1,
+    '𝄪': 2,
+    '♮': 0
+};
 
 // Define an interface for a Pitch, which includes a note and its accidental.
 interface Pitch {
@@ -132,6 +150,33 @@ const absChords: Array<Chord> = [
          accidental: '♮'},
      quality: "M"}
 ];
+
+const getPitchValue = (note: Note, accidental: Accidental) => {
+    let value = noteValues[note] + accidentalValues[accidental];
+
+    // Handle wrap-around.
+    if (value < 0) {
+        value = value + 12;
+    } else if (value >= 12) {
+        value = value - 12;
+    }
+
+    return value;
+}
+
+// Function to compare two Pitch objects for equivalence.
+const isSamePitch = (pitch1: Pitch, pitch2: Pitch): boolean => {
+    // If an accidental is not specified, it is assumed to be natural ('♮').
+    let accidental1 = pitch1.accidental || '♮';
+    let accidental2 = pitch2.accidental || '♮';
+
+    return getPitchValue(pitch1.note, accidental1) === getPitchValue(pitch2.note, accidental2);
+}
+
+const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
+    return isSamePitch(chord1.rootPitch, chord2.rootPitch) &&
+        chord1.quality === chord2.quality;
+}
 
 // Function to generate an infinite sequence of notes.
 function* generateNotes() {
@@ -273,4 +318,24 @@ const getAllModes = (): Array<Key> => {
 
 
 
-console.dir(getAllModes(), { depth: null })
+// console.dir(getAllModes(), { depth: null })
+console.log(isSameChord(
+    {
+        commonName: "C#",
+        rootPitch: {
+            note: "C",
+            accidental: "♯"
+        },
+        quality: "major"
+    },
+    {
+        commonName: "Db",
+        rootPitch: {
+            note: "D",
+            accidental: "♭"
+        },
+        quality: "major"
+    },
+
+
+))
