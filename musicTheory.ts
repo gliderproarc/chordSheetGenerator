@@ -178,6 +178,8 @@ const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
         chord1.quality === chord2.quality;
 }
 
+
+
 // Function to generate an infinite sequence of notes.
 function* generateNotes() {
     let index = 0;
