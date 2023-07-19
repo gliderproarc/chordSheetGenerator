@@ -8,10 +8,7 @@ type Mode = 'Ionian' | 'Dorian' | 'Phrygian' | 'Lydian' |
     'Mixolidian' | 'Aolean' | 'Locrian';
 
 // Define a type for roman numerals
-type RomanNumeral =
-    'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII' |
-    'i' | 'ii' | 'iii' | 'iv' | 'v' | 'vi' | 'vii';
-
+type RomanNumeral = 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII';
 
 // Define the notes.
 const notes: Array<Note> = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -90,10 +87,10 @@ interface Chord {
 
 const absChords: Array<Chord> = [
     {commonName: "C",
-    rootPitch: {
-    note: "C",
-    accidental: null},
-    quality: "M"},
+     rootPitch: {
+         note: "C",
+         accidental: null},
+     quality: "M"},
     {commonName: "Db",
      rootPitch: {
          note: "D",
@@ -163,6 +160,20 @@ const getPitchValue = (note: Note, accidental: Accidental) => {
 
     return value;
 }
+
+const getRelPitchValue = (pitch1: Pitch, pitch2: Pitch): number => {
+    const accidental1 = pitch1.accidental || '♮';
+    const accidental2 = pitch2.accidental || '♮';
+
+    const value1: number = noteValues[pitch1.note] + accidentalValues[accidental1];
+    let value2: number = noteValues[pitch2.note] + accidentalValues[accidental2];
+    if (value2 < value1) {
+        value2 = value2 + 12
+    };
+
+    return  value2 - value1
+}
+
 
 // Function to compare two Pitch objects for equivalence.
 const isSamePitch = (pitch1: Pitch, pitch2: Pitch): boolean => {
@@ -321,23 +332,27 @@ const getAllModes = (): Array<Key> => {
 
 
 // console.dir(getAllModes(), { depth: null })
-console.log(isSameChord(
-    {
-        commonName: "C#",
-        rootPitch: {
-            note: "C",
-            accidental: "♯"
-        },
-        quality: "major"
-    },
-    {
-        commonName: "Db",
-        rootPitch: {
-            note: "D",
-            accidental: "♭"
-        },
-        quality: "major"
-    },
+// console.log(isSameChord(
+//     {
+//         commonName: "C#",
+//         rootPitch: {
+//             note: "C",
+//             accidental: "♯"
+//         },
+//         quality: "major"
+//     },
+//     {
+//         commonName: "Db",
+//         rootPitch: {
+//             note: "D",
+//             accidental: "♭"
+//         },
+//         quality: "major"
+//     },
 
 
-))
+// ))
+// console.log(getPitchValue("B", "♭"))
+// console.log(getPitchValue("D", "♮"))
+
+console.log(getRelPitchValue({note:"B",accidental: "♭"}, {note: "D",accidental: null} ));
