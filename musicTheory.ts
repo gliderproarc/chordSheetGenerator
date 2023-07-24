@@ -53,6 +53,7 @@ const accidentalValues: Record<Accidental, number> = {
     '♮': 0
 };
 
+
 // Define an interface for a Pitch, which includes a note and its accidental.
 interface Pitch {
     note: Note;
@@ -85,69 +86,6 @@ interface Chord {
     quality: string;
 }
 
-const absChords: Array<Chord> = [
-    {commonName: "C",
-     rootPitch: {
-         note: "C",
-         accidental: null},
-     quality: "M"},
-    {commonName: "Db",
-     rootPitch: {
-         note: "D",
-         accidental: '♭'},
-     quality: "M"},
-    {commonName: "D",
-     rootPitch: {
-         note: "D",
-         accidental: '♮'},
-     quality: "M"},
-    {commonName: "Eb",
-     rootPitch: {
-         note: "E",
-         accidental: '♭'},
-     quality: "M"},
-    {commonName: "E",
-     rootPitch: {
-         note: "E",
-         accidental: '♮'},
-     quality: "M"},
-    {commonName: "F",
-     rootPitch: {
-         note: "F",
-         accidental: '♮'},
-     quality: "M"},
-    {commonName: "F#",
-     rootPitch: {
-         note: "F",
-         accidental: '♯'},
-     quality: "M"},
-    {commonName: "G",
-     rootPitch: {
-         note: "G",
-         accidental: '♮'},
-     quality: "M"},
-    {commonName: "Ab",
-     rootPitch: {
-         note: "A",
-         accidental: '♭'},
-     quality: "M"},
-    {commonName: "A",
-     rootPitch: {
-         note: "A",
-         accidental: '♮'},
-     quality: "M"},
-    {commonName: "Bb",
-     rootPitch: {
-         note: "B",
-         accidental: '♭'},
-     quality: "M"},
-    {commonName: "B",
-     rootPitch: {
-         note: "B",
-         accidental: '♮'},
-     quality: "M"}
-];
-
 const getPitchValue = (note: Note, accidental: Accidental) => {
     let value = noteValues[note] + accidentalValues[accidental];
 
@@ -171,7 +109,7 @@ const getRelPitchValue = (pitch1: Pitch, pitch2: Pitch): number => {
         value2 = value2 + 12
     };
 
-    return  value2 - value1
+    return value2 - value1;
 }
 
 
@@ -189,14 +127,62 @@ const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
         chord1.quality === chord2.quality;
 }
 
+const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, relativeDistance: number): Pitch => {
+    let accidental: Accidental = targetChordRoot.accidental || '♮';
 
+    let difference: number = originalDistance - relativeDistance;
+
+    const accidentalOrder: Accidental[] = ['𝄫', '♭', '♮', '♯', '𝄪'];
+
+    while (difference !== 0) {
+        let index: number = accidentalOrder.indexOf(accidental);
+
+        if (difference > 0 && index < accidentalOrder.length - 1) {
+            accidental = accidentalOrder[++index];
+            difference--;
+        }
+        else if (difference < 0 && index > 0) {
+            accidental = accidentalOrder[--index];
+            difference++;
+        }
+        else {
+            throw new Error('Cannot adjust accidental further.');
+        }
+    }
+
+    return { note: targetChordRoot.note, accidental: accidental };
+}
+
+const transposeChord = (originalKey: Key, chord: Chord, targetKey: Key): Chord => {
+    const originalScale = originalKey.scale.pitches;
+
+    let originalScaleDegree = 0;
+    for (let i = 0; i < originalScale.length; i++) {
+        if (isSamePitch(originalScale[i][1], chord.rootPitch)) {
+            originalScaleDegree = originalScale[i][0];
+            break;
+        }
+    }
+
+    const originalDistance = getRelPitchValue(originalKey.name, chord.rootPitch);
+    const naiveDistance = getRelPitchValue(targetKey.name, targetKey.scale.pitches[originalScaleDegree][1]);
+
+    const targetChordRoot: Pitch = targetKey.scale.pitches[originalScaleDegree][1];
+
+    const adjustedTargetChordRoot: Pitch = adjustForAccidentals(targetChordRoot, originalDistance, naiveDistance);
+
+    return {
+        commonName: chord.commonName,  // TODO handle common name
+        rootPitch: adjustedTargetChordRoot,
+        quality: chord.quality      };
+}
 
 // Function to generate an infinite sequence of notes.
-function* generateNotes() {
-    let index = 0;
+function* generateNotes(start: number = 0) {
+    let index = start;
     while (true) {
-        yield notes[index];
-        index = (index + 1) % notes.length;
+        yield notes[index % notes.length];
+        index++;
     }
 }
 
@@ -216,8 +202,25 @@ const rotateScale = (scale: Scale, rotations: number): Scale => {
     }
 }
 
+
+// Function to get a series of notes from a specific starting pitch to an end pitch.
+function getNotesSelectively(startNote: Note, endNote: Note) {
+    const startIndex = notes.indexOf(startNote);
+    const endIndex = notes.indexOf(endNote);
+    const noteGenerator = generateNotes(startIndex);
+    const series = [];
+    let currentNote;
+
+    do {
+        currentNote = noteGenerator.next().value;
+        series.push(currentNote);
+    } while (currentNote !== endNote);
+
+    return series;
+}
+
 const getNotes = (startNote: string) => {
-    const noteGenerator = generateNotes();
+    const noteGenerator = generateNotes(0);
     let result = noteGenerator.next();
     let note = result.value;
 
@@ -329,30 +332,25 @@ const getAllModes = (): Array<Key> => {
 }
 
 
+// testing
+const keyOfC = getKey(0, {note: "C",accidental: null}, "Ionian")
+const keyOfBb = getKey(2, {note: "B",accidental: '♭' }, "Ionian")
+
+console.log(transposeChord(keyOfC,
+            {
+    commonName: "F",
+    rootPitch: {note: "F", accidental: null},
+    quality: "major",
+}, keyOfBb
+                          ))
 
 
 // console.dir(getAllModes(), { depth: null })
-// console.log(isSameChord(
-//     {
-//         commonName: "C#",
-//         rootPitch: {
-//             note: "C",
-//             accidental: "♯"
-//         },
-//         quality: "major"
-//     },
-//     {
-//         commonName: "Db",
-//         rootPitch: {
-//             note: "D",
-//             accidental: "♭"
-//         },
-//         quality: "major"
-//     },
 
+interface Chord
 
-// ))
-// console.log(getPitchValue("B", "♭"))
-// console.log(getPitchValue("D", "♮"))
-
-console.log(getRelPitchValue({note:"B",accidental: "♭"}, {note: "D",accidental: null} ));
+{
+    commonName: string;
+    rootPitch: Pitch;
+    quality: string;
+}
