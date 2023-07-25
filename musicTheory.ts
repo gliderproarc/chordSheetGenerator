@@ -112,7 +112,6 @@ const getRelPitchValue = (pitch1: Pitch, pitch2: Pitch): number => {
     return value2 - value1;
 }
 
-
 // Function to compare two Pitch objects for equivalence.
 const isSamePitch = (pitch1: Pitch, pitch2: Pitch): boolean => {
     // If an accidental is not specified, it is assumed to be natural ('♮').
@@ -128,6 +127,8 @@ const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
 }
 
 const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, relativeDistance: number): Pitch => {
+    console.log(`Original Distance: ${originalDistance}, Relative Distance: ${relativeDistance}, Calculated Difference: ${originalDistance - relativeDistance}`); // Debugging line
+
     let accidental: Accidental = targetChordRoot.accidental || '♮';
 
     let difference: number = originalDistance - relativeDistance;
@@ -136,6 +137,7 @@ const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, 
 
     while (difference !== 0) {
         let index: number = accidentalOrder.indexOf(accidental);
+        console.log(`Current accidental: ${accidental}, Difference: ${difference}, Index: ${index}`); // Debugging line
 
         if (difference > 0 && index < accidentalOrder.length - 1) {
             accidental = accidentalOrder[++index];
@@ -175,6 +177,10 @@ const transposeChord = (originalKey: Key, chord: Chord, targetKey: Key): Chord =
         commonName: chord.commonName,  // TODO handle common name
         rootPitch: adjustedTargetChordRoot,
         quality: chord.quality      };
+}
+
+const transposeChordArray = (originalKey: Key, chords: Chord[], targetKey: Key): Chord[] => {
+    return chords.map(chord => transposeChord(originalKey, chord, targetKey));
 }
 
 // Function to generate an infinite sequence of notes.
@@ -333,24 +339,37 @@ const getAllModes = (): Array<Key> => {
 
 
 // testing
-const keyOfC = getKey(0, {note: "C",accidental: null}, "Ionian")
-const keyOfBb = getKey(2, {note: "B",accidental: '♭' }, "Ionian")
+const keyOfC = getKey(0, {note: "C", accidental: null}, "Ionian");
+const keyOfBb = getKey(-2, {note: "B", accidental: '♭' }, "Ionian");
 
-console.log(transposeChord(keyOfC,
-            {
-    commonName: "F",
-    rootPitch: {note: "F", accidental: null},
-    quality: "major",
-}, keyOfBb
-                          ))
+// Then use it like this
+const chords: Chord[] = [
+    {
+        commonName: "F",
+        rootPitch: {note: "F" as Note, accidental: null},
+        quality: "major"
+    },
+    {
+        commonName: "C",
+        rootPitch: {note: "C" as Note, accidental: null},
+        quality: "major"
+    },
+    {
+        commonName: "Am",
+        rootPitch: {note: "A" as Note, accidental: null},
+        quality: "minor"
+    },
+    {
+        commonName: "G",
+        rootPitch: {note: "G" as Note, accidental: null},
+        quality: "major"
+    },
+    {
+        commonName: "Bb",
+        rootPitch: {note: "B" as Note, accidental: '♭' },
+        quality: "major"
+    }
+];
 
-
+console.log(transposeChordArray(keyOfC, chords, keyOfBb));
 // console.dir(getAllModes(), { depth: null })
-
-interface Chord
-
-{
-    commonName: string;
-    rootPitch: Pitch;
-    quality: string;
-}
