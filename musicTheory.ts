@@ -127,7 +127,7 @@ const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
 }
 
 const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, relativeDistance: number): Pitch => {
-    console.log(`Original Distance: ${originalDistance}, Relative Distance: ${relativeDistance}, Calculated Difference: ${originalDistance - relativeDistance}`); // Debugging line
+    // console.log(`Original Distance: ${originalDistance}, Relative Distance: ${relativeDistance}, Calculated Difference: ${originalDistance - relativeDistance}`); // Debugging line
 
     let accidental: Accidental = targetChordRoot.accidental || '♮';
 
@@ -137,7 +137,7 @@ const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, 
 
     while (difference !== 0) {
         let index: number = accidentalOrder.indexOf(accidental);
-        console.log(`Current accidental: ${accidental}, Difference: ${difference}, Index: ${index}`); // Debugging line
+        // console.log(`Current accidental: ${accidental}, Difference: ${difference}, Index: ${index}`); // Debugging line
 
         if (difference > 0 && index < accidentalOrder.length - 1) {
             accidental = accidentalOrder[++index];
@@ -160,7 +160,7 @@ const transposeChord = (originalKey: Key, chord: Chord, targetKey: Key): Chord =
 
     let originalScaleDegree = 0;
     for (let i = 0; i < originalScale.length; i++) {
-        if (isSamePitch(originalScale[i][1], chord.rootPitch)) {
+        if (originalScale[i][1].note === chord.rootPitch.note) {
             originalScaleDegree = originalScale[i][0];
             break;
         }
@@ -180,7 +180,34 @@ const transposeChord = (originalKey: Key, chord: Chord, targetKey: Key): Chord =
 }
 
 const transposeChordArray = (originalKey: Key, chords: Chord[], targetKey: Key): Chord[] => {
-    return chords.map(chord => transposeChord(originalKey, chord, targetKey));
+    return chords.map(chord => {
+        const transposedChord = transposeChord(originalKey, chord, targetKey);
+        return updateCommonName(targetKey, transposedChord);
+    });
+}
+
+const updateCommonName = (targetKey: Key, chord: Chord): Chord => {
+    const pitchInScale = targetKey.scale.pitches.find(
+        ([, pitch]) => pitch.note === chord.rootPitch.note && (pitch.accidental || '♮') === chord.rootPitch.accidental
+    );
+
+    let newCommonName = chord.rootPitch.note;
+
+    if (pitchInScale) {
+        // If the pitch is in the key and has an accidental, add it to the commonName
+        if (pitchInScale[1].accidental) {
+            newCommonName += pitchInScale[1].accidental;
+        }
+        // else we leave it as just the note (without accidental)
+    } else {
+        // If the pitch is not in the target scale, concatenate the accidental
+        newCommonName += chord.rootPitch.accidental;
+    }
+
+    return {
+        ...chord,
+        commonName: newCommonName,
+    };
 }
 
 // Function to generate an infinite sequence of notes.
