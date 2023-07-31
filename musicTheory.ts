@@ -1,5 +1,6 @@
 // Define a type for the accidental.
 type Accidental = '𝄫' | '♭' | '♯' | '𝄪' | '♮';
+
 // Define a type for the note.
 type Note = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
 
@@ -53,7 +54,6 @@ const accidentalValues: Record<Accidental, number> = {
     '♮': 0
 };
 
-
 // Define an interface for a Pitch, which includes a note and its accidental.
 interface Pitch {
     note: Note;
@@ -74,12 +74,7 @@ interface Key {
     mode: Mode;
 }
 
-// // Keys should know what chords they have, so lets store them here
-// interface ChordSet {
-//     chords: [number, RomanNumeral, Chord][];
-// }
-
-// Chords only need their qualit and root, and the way we write them
+// Chords only need their quality and root, and the way we write them
 interface Chord {
     commonName: string;
     rootPitch: Pitch;
@@ -99,16 +94,16 @@ const getPitchValue = (note: Note, accidental: Accidental) => {
     return value;
 }
 
+// Get the difference in value between two pitches. Must be lower pitch first
 const getRelPitchValue = (pitch1: Pitch, pitch2: Pitch): number => {
     const accidental1 = pitch1.accidental || '♮';
     const accidental2 = pitch2.accidental || '♮';
-
     const value1: number = noteValues[pitch1.note] + accidentalValues[accidental1];
+
     let value2: number = noteValues[pitch2.note] + accidentalValues[accidental2];
     if (value2 < value1) {
         value2 = value2 + 12
     };
-
     return value2 - value1;
 }
 
@@ -127,56 +122,37 @@ const isSameChord = (chord1: Chord, chord2: Chord): boolean => {
 }
 
 const adjustForAccidentals = (targetChordRoot: Pitch, originalDistance: number, relativeDistance: number): Pitch => {
-    // console.log(`Original Distance: ${originalDistance}, Relative Distance: ${relativeDistance}, Calculated Difference: ${originalDistance - relativeDistance}`); // Debugging line
-
-    let accidental: Accidental = targetChordRoot.accidental || '♮';
-
-    let difference: number = originalDistance - relativeDistance;
-
     const accidentalOrder: Accidental[] = ['𝄫', '♭', '♮', '♯', '𝄪'];
+    const initialIndex = accidentalOrder.indexOf(targetChordRoot.accidental || '♮');
+    const targetIndex = initialIndex + originalDistance - relativeDistance;
 
-    while (difference !== 0) {
-        let index: number = accidentalOrder.indexOf(accidental);
-        // console.log(`Current accidental: ${accidental}, Difference: ${difference}, Index: ${index}`); // Debugging line
-
-        if (difference > 0 && index < accidentalOrder.length - 1) {
-            accidental = accidentalOrder[++index];
-            difference--;
-        }
-        else if (difference < 0 && index > 0) {
-            accidental = accidentalOrder[--index];
-            difference++;
-        }
-        else {
-            throw new Error('Cannot adjust accidental further.');
-        }
+    if (targetIndex < 0 || targetIndex >= accidentalOrder.length) {
+        throw new Error('Cannot adjust accidental further.');
     }
 
-    return { note: targetChordRoot.note, accidental: accidental };
+    return { note: targetChordRoot.note, accidental: accidentalOrder[targetIndex] };
 }
 
 const transposeChord = (originalKey: Key, chord: Chord, targetKey: Key): Chord => {
     const originalScale = originalKey.scale.pitches;
+    const foundPitch = originalScale.find(([degree, pitch]) => pitch.note === chord.rootPitch.note);
 
-    let originalScaleDegree = 0;
-    for (let i = 0; i < originalScale.length; i++) {
-        if (originalScale[i][1].note === chord.rootPitch.note) {
-            originalScaleDegree = originalScale[i][0];
-            break;
-        }
+    if (!foundPitch) {
+        throw new Error("No matching pitch found in the original scale.");
     }
 
+    const originalScaleDegree = foundPitch[0];
     const originalDistance = getRelPitchValue(originalKey.name, chord.rootPitch);
-    const naiveDistance = getRelPitchValue(targetKey.name, targetKey.scale.pitches[originalScaleDegree][1]);
+    const targetScaleDistance = getRelPitchValue(targetKey.name, targetKey.scale.pitches[originalScaleDegree][1]);
 
     const targetChordRoot: Pitch = targetKey.scale.pitches[originalScaleDegree][1];
-
-    const adjustedTargetChordRoot: Pitch = adjustForAccidentals(targetChordRoot, originalDistance, naiveDistance);
+    const adjustedTargetChordRoot: Pitch = adjustForAccidentals(targetChordRoot, originalDistance, targetScaleDistance);
 
     return {
-        commonName: chord.commonName,  // TODO handle common name
+        commonName: chord.commonName, // TODO handle common names
         rootPitch: adjustedTargetChordRoot,
-        quality: chord.quality      };
+        quality: chord.quality
+    };
 }
 
 const transposeChordArray = (originalKey: Key, chords: Chord[], targetKey: Key): Chord[] => {
@@ -190,20 +166,14 @@ const updateCommonName = (targetKey: Key, chord: Chord): Chord => {
     const pitchInScale = targetKey.scale.pitches.find(
         ([, pitch]) => pitch.note === chord.rootPitch.note && (pitch.accidental || '♮') === chord.rootPitch.accidental
     );
-
     let newCommonName = chord.rootPitch.note;
-
     if (pitchInScale) {
-        // If the pitch is in the key and has an accidental, add it to the commonName
         if (pitchInScale[1].accidental) {
             newCommonName += pitchInScale[1].accidental;
         }
-        // else we leave it as just the note (without accidental)
     } else {
-        // If the pitch is not in the target scale, concatenate the accidental
         newCommonName += chord.rootPitch.accidental;
     }
-
     return {
         ...chord,
         commonName: newCommonName,
@@ -221,20 +191,18 @@ function* generateNotes(start: number = 0) {
 
 const rotateScale = (scale: Scale, rotations: number): Scale => {
     const pitches = [...scale.pitches];  // copy the array to avoid modifying the original
-    for (let i = 0; i < rotations; i++) {
-        if (pitches.length > 0) {
-            let first = pitches.shift();
-            if (first !== undefined) {
-                pitches.push(first);
-            }
-        }
-    }
-    return {
-        name: pitches[0][1],
-        pitches: pitches
-    }
-}
+    const effectiveRotations = rotations % pitches.length;
 
+    const rotatedPitches = [
+        ...pitches.slice(effectiveRotations),
+        ...pitches.slice(0, effectiveRotations)
+    ];
+
+    return {
+        name: rotatedPitches[0][1],
+        pitches: rotatedPitches
+    };
+}
 
 // Function to get a series of notes from a specific starting pitch to an end pitch.
 function getNotesSelectively(startNote: Note, endNote: Note) {
@@ -243,7 +211,6 @@ function getNotesSelectively(startNote: Note, endNote: Note) {
     const noteGenerator = generateNotes(startIndex);
     const series = [];
     let currentNote;
-
     do {
         currentNote = noteGenerator.next().value;
         series.push(currentNote);
