@@ -1,3 +1,5 @@
+import { rotateArray } from "./theoryUtil";
+
 type Accidental = "+" | "-";
 type Note = "C" | "D" | "E" | "F" | "G" | "A" | "B";
 type Mode = 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -100,7 +102,7 @@ const evaluatePitch = (index: number, target: Note): Pitch => {
   }
 };
 
-const getMajorScale = (key: Pitch): Scale | null => {
+const getScale = (key: Pitch, mode: Mode): Scale | null => {
   const { note, accidental } = key;
 
   // detect invalid key
@@ -123,7 +125,7 @@ const getMajorScale = (key: Pitch): Scale | null => {
     name: note,
     accidental: accidental,
     pitches: [],
-    mode: 1,
+    mode: mode,
   };
 
   scale.pitches.push(startPitch);
@@ -131,6 +133,8 @@ const getMajorScale = (key: Pitch): Scale | null => {
   let currentIndex = startIndex;
   let currentPitch = pitchList[startPitch.note];
   const steps = [...majorSteps];
+
+  rotateArray(steps, mode - 1, "frontToBack");
 
   while (steps.length > 1) {
     currentIndex = (currentIndex + steps[0]) % 12;
@@ -142,16 +146,20 @@ const getMajorScale = (key: Pitch): Scale | null => {
   return scale;
 };
 
-const getMinorScale = (key: Note, accidental: Accidental | null) => {};
+const shiftMode = (scale: Scale, mode: Mode): void => {
+  const modeDiff = mode - scale.mode;
+  scale.mode = mode;
+  if (modeDiff < 0) {
+    const rotations = Math.abs(modeDiff);
+    rotateArray(scale.pitches, rotations, "frontToBack");
+  } else if (modeDiff > 0) {
+    rotateArray(scale.pitches, modeDiff, "backToFront");
+  }
 
-const getMode = (scale: Scale, mode: Mode) => {};
-
-getMajorScale({ note: "A", accidental: "+" });
-getMajorScale({ note: "B", accidental: "-" });
-getMajorScale({ note: "C", accidental: null });
-getMajorScale({ note: "D", accidental: "-" });
-getMajorScale({ note: "E", accidental: null });
-getMajorScale({ note: "F", accidental: "+" });
-getMajorScale({ note: "G", accidental: "+" });
+  console.log(scale);
+};
 
 export {};
+
+const scale = getScale({ note: "B", accidental: "-" }, 2)!;
+shiftMode(scale, 1);
