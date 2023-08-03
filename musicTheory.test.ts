@@ -17,3 +17,39 @@ test("transposeChord transposes chords correctly", () => {
     quality: "major",
   });
 });
+
+test("transposeChord transposes Cb correctly", () => {
+  expect(
+    transposeChord(
+      getKey(-7, { note: "C", accidental: "♭" }, "Ionian"),
+      {
+        commonName: "Cb",
+        rootPitch: { note: "C" as Note, accidental: "♭" },
+        quality: "major",
+      },
+      getKey(7, { note: "C", accidental: "♯" }, "Ionian"),
+    ),
+  ).toStrictEqual({
+    commonName: "Cb",
+    rootPitch: { note: "C" as Note, accidental: "♯" },
+    quality: "major",
+  });
+});
+
+test("transposeChord transposes C# correctly", () => {
+  expect(
+    transposeChord(
+      getKey(7, { note: "C", accidental: "♯" }, "Ionian"),
+      {
+        commonName: "C#",
+        rootPitch: { note: "C" as Note, accidental: "♯" },
+        quality: "major",
+      },
+      getKey(-7, { note: "C", accidental: "♭" }, "Ionian"),
+    ),
+  ).toStrictEqual({
+    commonName: "C#",
+    rootPitch: { note: "C" as Note, accidental: "♭" },
+    quality: "major",
+  });
+});
