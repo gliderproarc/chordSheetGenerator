@@ -3,10 +3,15 @@ import {
   rotateBackToFront,
   rotateFrontToBack,
 } from "./theoryUtil";
+import { it } from "@jest/globals";
 
 describe("theory util tests", () => {
   describe("rotate tests", () => {
-    it.each`
+    it.each<{
+      rotationFunction: (array: number[]) => void;
+      array: number[];
+      expected: number[];
+    }>`
       rotationFunction     | array        | expected
       ${rotateFrontToBack} | ${[]}        | ${[]}
       ${rotateFrontToBack} | ${[1]}       | ${[1]}
@@ -24,7 +29,12 @@ describe("theory util tests", () => {
   });
 
   describe("rotateArray tests", () => {
-    it.each`
+    it.each<{
+      array: number[];
+      times: number;
+      direction: "frontToBack" | "backToFront";
+      expected: number[];
+    }>`
       array        | times  | direction        | expected
       ${[]}        | ${100} | ${"frontToBack"} | ${[]}
       ${[1]}       | ${100} | ${"frontToBack"} | ${[1]}
