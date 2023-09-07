@@ -1,0 +1,14 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies
+ []
+
+ :builds
+ {:library {:target :node-library
+            :output-to "public/out.js"
+            :output-dir "public"
+            :exports {:enter app.core/enter
+                      :recognizeText app.core/recognizeText}
+            }}}

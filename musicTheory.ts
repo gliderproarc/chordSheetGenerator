@@ -1,3 +1,6 @@
+const cljs = require('/Users/robertclay/chordSheetGenerator/cljsOCR/public/out.js' );
+
+
 // Define a type for the accidental.
 type Accidental = "𝄫" | "♭" | "♯" | "𝄪" | "♮";
 
@@ -415,5 +418,8 @@ const chords: Chord[] = [
   },
 ];
 
-console.log(transposeChordArray(keyOfC, chords, keyOfBb));
+// console.log(transposeChordArray(keyOfC, chords, keyOfBb));
 // console.dir(getAllModes(), { depth: null })
+
+const result = (cljs.recognizeText as () => any)();
+

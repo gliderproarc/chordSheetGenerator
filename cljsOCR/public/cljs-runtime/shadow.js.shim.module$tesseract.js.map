@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"shadow.js.shim.module$tesseract.js",
+"lineCount":5,
+"mappings":"AAAAA,IAAKC,CAAAA,OAAL,CAAa,iCAAb,CAAA;AACAD,IAAKC,CAAAA,OAAL,CAAa,wCAAb,CAAA;AACAC,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,gBAAf,GAAkCC,OAAA,CAAQ,cAAR,CAAlC;AACAC,sCAAuCC,CAAAA,OAAvC,GAAiDN,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,gBAAhE;;",
+"sources":["shadow.js.shim.module$tesseract.js"],
+"sourcesContent":["goog.provide(\"shadow.js.shim.module$tesseract\");\ngoog.provide(\"module$shadow_js_shim_module$tesseract\");\nshadow.js.shim.module$tesseract = require(\"tesseract.js\");\nmodule$shadow_js_shim_module$tesseract.default = shadow.js.shim.module$tesseract;\n"],
+"names":["goog","provide","shadow","js","shim","module$tesseract","require","module$shadow_js_shim_module$tesseract","default"]
+}
