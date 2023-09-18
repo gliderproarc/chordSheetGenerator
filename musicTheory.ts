@@ -18,9 +18,11 @@ type Mode =
 type RomanNumeral = "I" | "II" | "III" | "IV" | "V" | "VI" | "VII";
 
 // Define the notes.
+// REVIEW: CONSTANT_CASE preferred here
 const notes: Array<Note> = ["C", "D", "E", "F", "G", "A", "B"];
 
 //name the sharps and flats
+// REVIEW: CONSTANT_CASE preferred here
 const sharps: Array<Pitch> = [
   { note: "F", accidental: "♯" },
   { note: "C", accidental: "♯" },
@@ -31,6 +33,7 @@ const sharps: Array<Pitch> = [
   { note: "B", accidental: "♯" },
 ];
 
+// REVIEW: CONSTANT_CASE preferred here
 const flats: Array<Pitch> = [
   { note: "B", accidental: "♭" },
   { note: "E", accidental: "♭" },
@@ -42,6 +45,7 @@ const flats: Array<Pitch> = [
 ];
 
 // Pitch value map
+// REVIEW: CONSTANT_CASE preferred here
 const noteValues: Record<Note, number> = {
   C: 0,
   D: 2,
@@ -52,6 +56,7 @@ const noteValues: Record<Note, number> = {
   B: 11,
 };
 
+// REVIEW: CONSTANT_CASE preferred here
 const accidentalValues: Record<Accidental, number> = {
   "𝄫": -2,
   "♭": -1,
@@ -69,6 +74,9 @@ interface Pitch {
 // Define an interface for a Scale, which includes the name and the pitches.
 interface Scale {
   name: Pitch;
+  /*REVIEW: Not sure why the number which seems to respresent the degree in scale
+      is necessary here since I can't really find where it is accesed in the other functions.
+    */
   pitches: [number, Pitch][];
 }
 
@@ -300,6 +308,28 @@ const getAccidentals = (num: number): Array<Pitch> => {
   }
 };
 
+/*  REVIEW
+    What if this function is called with the wrong number for param numSharpFlats?
+
+    There's nothing enforcing the correct number so for example I can call 
+    const keyOfC = getKey(1, { note: "C", accidental: null }, "Ionian");
+    and it'll give me a C scale with an F#.
+
+    Though we implicitly know the number of sharps/flats needed for a scale from music knowledge, 
+    it's still a point for a potential bug to appear if for example, another dev tries using the 
+    function but doesn't have the same knowledge, thus doesn't know what number use for the param.
+
+    Not having the param for the number of sharps and flats complicates the problem a lot, but if
+    you want to keep this function as is, then perhaps introducing a map to ensure correctness 
+    and updating the type for numsharpFlats would be good. e.g.
+    const SharpFlatMap: Record<Pitch['note'], number> = 
+    {
+      C: 0
+      G: 1
+      D: 2
+      ...etc
+    }
+*/
 export const getKey = (numSharpFlats: number, root: Pitch, mode: Mode): Key => {
   const pitches = getNotes(root.note);
   const accidentals = getAccidentals(numSharpFlats);
