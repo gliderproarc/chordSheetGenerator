@@ -18,10 +18,10 @@ type Mode =
 type RomanNumeral = "I" | "II" | "III" | "IV" | "V" | "VI" | "VII";
 
 // Define the notes.
-const notes: Array<Note> = ["C", "D", "E", "F", "G", "A", "B"];
+const NOTES: Array<Note> = ["C", "D", "E", "F", "G", "A", "B"];
 
 //name the sharps and flats
-const sharps: Array<Pitch> = [
+const SHARPS: Array<Pitch> = [
   { note: "F", accidental: "♯" },
   { note: "C", accidental: "♯" },
   { note: "G", accidental: "♯" },
@@ -31,7 +31,7 @@ const sharps: Array<Pitch> = [
   { note: "B", accidental: "♯" },
 ];
 
-const flats: Array<Pitch> = [
+const FLATS: Array<Pitch> = [
   { note: "B", accidental: "♭" },
   { note: "E", accidental: "♭" },
   { note: "A", accidental: "♭" },
@@ -42,7 +42,7 @@ const flats: Array<Pitch> = [
 ];
 
 // Pitch value map
-const noteValues: Record<Note, number> = {
+const NOTEVALUES: RECORD<Note, number> = {
   C: 0,
   D: 2,
   E: 4,
@@ -52,7 +52,7 @@ const noteValues: Record<Note, number> = {
   B: 11,
 };
 
-const accidentalValues: Record<Accidental, number> = {
+const ACCIDENTALVALUES: Record<Accidental, number> = {
   "𝄫": -2,
   "♭": -1,
   "♯": 1,
